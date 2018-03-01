@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from scipy.cluster.vq import kmeans2
 import os
 
 # directory of images
@@ -7,6 +8,7 @@ dataDir = './../../AND_dataset/Dataset[Without-Features]/AND_Images[WithoutFeatu
 # filename of SIFT descriptors
 siftDescriptorsFile = './../data/SIFTDescriptorDictionary.npy'
 vectorAddedSIFTDescriptorsFile = './../data/vectorAddedSIFTDescriptorsDictionary.npy'
+centroidsOfSIFTDescriptorsFile = './../data/centroidsOfSIFTDescriptorsDictionary_3.npy'
 
 # function extracts all the SIFT features of all the images in a directory
 # stores the features in a dictionary
@@ -68,12 +70,41 @@ def vectorAdditionOfSIFTDescriptors():
 	# save dictionary to file
 	np.save(vectorAddedSIFTDescriptorsFile, descriptorDict)
 
+# clustering the descriptors in the image using Kmeans
+def clusterDescriptorsUsingKmeans(numCluster):
+	# read the descriptors stored in file
+	descriptorDict = np.load(siftDescriptorsFile).item()
+
+	# iterate over the descriptors, find their cluster centroids
+	for k, v in descriptorDict.items():
+		centroidsOfSIFTDescriptors = []
+
+		# looping over descriptors of each image, clustering them
+		for descArray in v:
+			# clustering the descriptors
+			centroids, _ = kmeans2(descArray, numCluster, minit='points')
+			# normalizing the centroids
+			centroidMag = np.reshape(np.linalg.norm(centroids, axis=1, ord=2),
+				[-1, 1])
+			centroids = centroids/centroidMag
+
+			# appending the resultant vector to list
+			centroidsOfSIFTDescriptors.append(centroids)
+
+		descriptorDict.update({k:centroidsOfSIFTDescriptors})
+
+	# save dictionary to file
+	np.save(centroidsOfSIFTDescriptorsFile, descriptorDict)
+
 def main():
 	# extract SIFT features from batch of images
 	# extractSIFTFeatures()
 
 	# vector addition of descriptors in an image
-	vectorAdditionOfSIFTDescriptors()
+	# vectorAdditionOfSIFTDescriptors()
+
+	# cluster SIFT descriptors
+	clusterDescriptorsUsingKmeans(3)
 
 if __name__ == "__main__":
 	main()
