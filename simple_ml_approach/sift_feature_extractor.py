@@ -6,6 +6,7 @@ import os
 dataDir = './../../AND_dataset/Dataset[Without-Features]/AND_Images[WithoutFeatures]/'
 # filename of SIFT descriptors
 siftDescriptorsFile = './../data/SIFTDescriptorDictionary.npy'
+vectorAddedSIFTDescriptorsFile = './../data/vectorAddedSIFTDescriptorsDictionary.npy'
 
 # function extracts all the SIFT features of all the images in a directory
 # stores the features in a dictionary
@@ -44,8 +45,35 @@ def extractSIFTFeatures():
 	# store dictionary in file
 	np.save(siftDescriptorsFile, descriptorDict)
 
+# perform vector addition of all descriptors in an image
+def vectorAdditionOfSIFTDescriptors():
+	# read the descriptors stored in file
+	descriptorDict = np.load(siftDescriptorsFile).item()
+
+	# iterate over the descriptors, add them, normalize them
+	for k, v in descriptorDict.items():
+		vectorAddedSIFTDescriptors = []
+
+		for descArray in v:
+			# adding desccriptors of a single image
+			resultantVector = np.sum(descArray, axis=0)
+			# normalizing the vector
+			resultantVector = resultantVector / np.linalg.norm(resultantVector, ord=2)
+
+			# appending the resultant vector to list
+			vectorAddedSIFTDescriptors.append(resultantVector)
+
+		descriptorDict.update({k:vectorAddedSIFTDescriptors})
+
+	# save dictionary to file
+	np.save(vectorAddedSIFTDescriptorsFile, descriptorDict)
+
 def main():
-	extractSIFTFeatures()
+	# extract SIFT features from batch of images
+	# extractSIFTFeatures()
+
+	# vector addition of descriptors in an image
+	vectorAdditionOfSIFTDescriptors()
 
 if __name__ == "__main__":
 	main()
