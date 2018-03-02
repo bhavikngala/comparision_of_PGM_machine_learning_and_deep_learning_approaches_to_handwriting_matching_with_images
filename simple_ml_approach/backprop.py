@@ -13,10 +13,10 @@ class BackPropNN:
 		self.weights = [(2 * 0.05 * np.random.rand(i, j) - 0.05) for i,j in zip(layerSizes[:-1], layerSizes[1:])]
 		self.biases = [(2 * 0.05 * np.random.rand(1, i) - 0.05) for i in layerSizes[1:]]
 
-		for weight in self.weights:
-			print('sum of weight:', np.sum(weight))
-		for bias in self.biases:
-			print('sum of bias:', np.sum(bias))
+		# for weight in self.weights:
+		# 	print('sum of weight:', np.sum(weight))
+		# for bias in self.biases:
+		# 	print('sum of bias:', np.sum(bias))
 
 	def feedForward(self, x):
 		a = []
@@ -24,9 +24,6 @@ class BackPropNN:
 		for i in range(1, self.numLayers):
 			z = np.dot(a[i-1], self.weights[i-1]) + self.biases[i-1]
 			a.append(misc.sigmoid(z))
-		# for aa in a:
-		# 	print('sum of a:', np.sum(aa))	
-		# quit()
 		
 		return a
 
@@ -39,9 +36,6 @@ class BackPropNN:
 		for i in range(2, self.numLayers):
 			delta = (np.dot(deltas[-i+1], self.weights[-i + 1].T)) * (a[-i] * (1 - a[-i]))
 			deltas[-i] = delta
-		# for delta in deltas:
-		# 	print('sum of delta:', np.sum(delta))
-		# quit()
 
 		return deltas
 
@@ -75,7 +69,7 @@ class BackPropNN:
 				self.updateWeights(gradientsWRTWeights, gradientsWRTBiases, learningRate)
 
 			if vali_x is not None and vali_y is not None:
-				if epoch % 100 == 0 or epoch % 10 == 0:
+				if epoch % 100 == 0 or (epoch % 10 == 0 and epoch < 100):
 					print('epoch:', format(epoch, '05d'), 'classification error:', self.evaluateNetwork(vali_x, vali_y))
 
 	def evaluateNetwork(self, x, y):
