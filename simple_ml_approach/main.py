@@ -1,16 +1,16 @@
 import numpy as np
 import random
-from simple_ml_approach import sift_feature_extractor as sfe
-from simple_ml_approach import BackPropNN
+import sift_feature_extractor as sfe
+from backprop import BackPropNN
 
 # filename of vector added SIFT descriptors
 vectorAddedSIFTDescriptorsFile = './../data/vectorAddedSIFTDescriptorsDictionary.npy'
 
-learningRate = 0.5
+learningRate = 0.25
 epochs = 1000
-miniBatchSize = 100
+miniBatchSize = 1000
 
-def fitVectorAddedSIFTDescriptorsData():
+def fitVectorAddedSIFTDescriptorsData(vectorAddedSIFTDescriptorsFile):
 	print('~~~~~~~~inside main:::function:::fitVectorAddedSIFTDescriptorsData')
 
 	# form same writer different writer pairs for input to network
@@ -19,12 +19,17 @@ def fitVectorAddedSIFTDescriptorsData():
 	# shuffle randomly
 	inputs, outputs = shuffleLists(inputs, outputs)
 
-	numInputs = len(inputs)
-	inpuVectorLength = inputs[0].shape[0]
+	# converting to np.array
+	inputs = np.array(inputs)
+	outputs = np.array(outputs)
 
-	# intialize network
-	# [256, 128, 2]
-	feedForwardNN = BackPropNN([inputVectorLength, inputVectorLength/2, 2])
+	numInputs = len(inputs)
+	inputVectorLength = inputs[0].shape[0]
+
+	# layers [256, 128, 2]
+	layerSizes = [256, 50, 2]
+	# initialize network
+	feedForwardNN = BackPropNN(layerSizes)
 
 	# describe network
 	feedForwardNN.describeNetwork()
@@ -35,6 +40,7 @@ def fitVectorAddedSIFTDescriptorsData():
 		inputs[int(numInputs * 0.8):int(numInputs * 0.9)],
 		outputs[int(numInputs * 0.8):int(numInputs * 0.9)])
 
+
 # shuffle input lists
 def shuffleLists(*lists):
 	# pack the lists using zip
@@ -44,12 +50,11 @@ def shuffleLists(*lists):
 	# return the lists by unpacking them
 	return zip(*packedLists)
 
-
 def main():
 	print('~~~~~~~~inside main:::function:::main')
 
 	# train network using vector added SIFT descriptors
-	fitVectorAddedSIFTDescriptorsData()
+	fitVectorAddedSIFTDescriptorsData(vectorAddedSIFTDescriptorsFile)
 
 if __name__ == "__main__":
 	main()
