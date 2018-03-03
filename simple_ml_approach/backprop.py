@@ -13,11 +13,6 @@ class BackPropNN:
 		self.weights = [(2 * 0.05 * np.random.rand(i, j) - 0.05) for i,j in zip(layerSizes[:-1], layerSizes[1:])]
 		self.biases = [(2 * 0.05 * np.random.rand(1, i) - 0.05) for i in layerSizes[1:]]
 
-		# for weight in self.weights:
-		# 	print('sum of weight:', np.sum(weight))
-		# for bias in self.biases:
-		# 	print('sum of bias:', np.sum(bias))
-
 	def feedForward(self, x):
 		a = []
 		a.append(x)
@@ -69,7 +64,7 @@ class BackPropNN:
 				self.updateWeights(gradientsWRTWeights, gradientsWRTBiases, learningRate)
 
 			if vali_x is not None and vali_y is not None:
-				if epoch % 100 == 0 or (epoch % 10 == 0 and epoch < 100):
+				if epoch > 0 and (epoch % 100 == 0 or (epoch % 10 == 0 and epoch < 100)):
 					print('epoch:', format(epoch, '05d'), 'classification error:', self.evaluateNetwork(vali_x, vali_y))
 
 	def evaluateNetwork(self, x, y):
