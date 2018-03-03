@@ -10,11 +10,13 @@ learningRate = 0.25
 epochs = 1000
 miniBatchSize = 1000
 
-def fitVectorAddedSIFTDescriptorsData(vectorAddedSIFTDescriptorsFile):
-	print('~~~~~~~~inside main:::function:::fitVectorAddedSIFTDescriptorsData')
+# function trains the network with given input-output and network size
+# input is specified in the siftDescriptorFile which is the file name
+def fitNetWorkWithSIFTDescriptorRepresentation(siftDescriptorFile, numPairs, networkSize):
+	print('~~~~~~~~inside main:::function:::fitNetWorkWithSIFTDescriptorRepresentation')
 
 	# form same writer different writer pairs for input to network
-	inputs, outputs = sfe.generateInputOutputDataset(vectorAddedSIFTDescriptorsFile, 10)
+	inputs, outputs = sfe.generateInputOutputDataset(siftDescriptorFile, numPairs)
 
 	# shuffle randomly
 	inputs, outputs = shuffleLists(inputs, outputs)
@@ -23,13 +25,11 @@ def fitVectorAddedSIFTDescriptorsData(vectorAddedSIFTDescriptorsFile):
 	inputs = np.array(inputs)
 	outputs = np.array(outputs)
 
+	# total number of inputs
 	numInputs = len(inputs)
-	inputVectorLength = inputs[0].shape[0]
-
-	# layers [256, 128, 2]
-	layerSizes = [256, 50, 2]
+	
 	# initialize network
-	feedForwardNN = BackPropNN(layerSizes)
+	feedForwardNN = BackPropNN(networkSize)
 
 	# describe network
 	feedForwardNN.describeNetwork()
@@ -39,7 +39,6 @@ def fitVectorAddedSIFTDescriptorsData(vectorAddedSIFTDescriptorsFile):
 		outputs[0:int(numInputs * 0.8)], learningRate, epochs, miniBatchSize,
 		inputs[int(numInputs * 0.8):int(numInputs * 0.9)],
 		outputs[int(numInputs * 0.8):int(numInputs * 0.9)])
-
 
 # shuffle input lists
 def shuffleLists(*lists):
