@@ -65,3 +65,18 @@ class BackProp:
 					test_accuracy = np.mean(np.argmax(yVali, axis=1) == sess.run(predict, feed_dict={x:xVali, y:yVali}))
 
 					print('Epoch = %05d, test accuracy = %.2f%%' % (epoch+1, 100. * test_accuracy))
+
+	# predict class:
+	def predict(self, xInput):
+		x = tf.placeholder(tf.float32, [None, 768])
+		yHat = feedForward(x)
+		# prediction
+		predict = tf.argmax(yHat, axis=1)
+		# session object
+		sess = tf.Session()
+		# initiablize variables
+		init = tf.global_variables_initializer()
+		# run init
+		sess.run(init)
+		# run prediction
+		sess.run(predict, feed_dict={x:xInput})
