@@ -5,15 +5,17 @@ from backprop import BackPropNN
 
 # filename of vector added SIFT descriptors
 vectorAddedSIFTDescriptorsFile = './../data/vectorAddedSIFTDescriptorsDictionary.npy'
+# filename of clusters of SIFT descriptors
+clustersOfSIFTDescriptorsFile = './../data/centroidsOfSIFTDescriptorsDictionary_3.npy'
 
-learningRate = 0.25
-epochs = 1000
-miniBatchSize = 1000
+learningRate = 0.5
+epochs = 5000
+miniBatchSize = 500
 
 # function trains the network with given input-output and network size
 # input is specified in the siftDescriptorFile which is the file name
 def fitNetWorkWithSIFTDescriptorRepresentation(siftDescriptorFile, numPairs, networkSize):
-	print('~~~~~~~~inside main:::function:::fitNetWorkWithSIFTDescriptorRepresentation')
+	print('~~~~~~~inside main:::function:::fitNetWorkWithSIFTDescriptorRepresentation')
 
 	# form same writer different writer pairs for input to network
 	inputs, outputs = sfe.generateInputOutputDataset(siftDescriptorFile, numPairs)
@@ -34,7 +36,7 @@ def fitNetWorkWithSIFTDescriptorRepresentation(siftDescriptorFile, numPairs, net
 	# describe network
 	feedForwardNN.describeNetwork()
 
-	# train network
+	# train network with validation data
 	feedForwardNN.train(inputs[0:int(numInputs * 0.8)],
 		outputs[0:int(numInputs * 0.8)], learningRate, epochs, miniBatchSize,
 		inputs[int(numInputs * 0.8):int(numInputs * 0.9)],
@@ -50,10 +52,13 @@ def shuffleLists(*lists):
 	return zip(*packedLists)
 
 def main():
-	print('~~~~~~~~inside main:::function:::main')
+	print('~~~~~~~inside main:::function:::main')
 
 	# train network using vector added SIFT descriptors
-	fitVectorAddedSIFTDescriptorsData(vectorAddedSIFTDescriptorsFile)
+	# fitNetWorkWithSIFTDescriptorRepresentation(vectorAddedSIFTDescriptorsFile, 10, [256, 128, 2])
+
+	# train network using clusters of SIFT descriptors
+	fitNetWorkWithSIFTDescriptorRepresentation(clustersOfSIFTDescriptorsFile, 10, [768, 256, 2])
 
 if __name__ == "__main__":
 	main()
