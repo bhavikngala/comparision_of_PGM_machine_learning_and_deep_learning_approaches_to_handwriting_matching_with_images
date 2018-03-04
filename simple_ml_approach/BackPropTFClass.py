@@ -27,6 +27,11 @@ class BackProp:
 		self.sess = tf.Session()
 		self.sess.run(tf.global_variables_initializer())
 
+		# if model checkpoint filename is provided then  restore
+		# parameters from file
+		if modelCheckPointFileName is not None:
+			restoreNetwork(modelCheckPointFileName)
+
 	# feed forward the input and compute output
 	def feedForward(self, x):
 		z1 = tf.nn.sigmoid(tf.matmul(x, self.w1) + self.b1)
@@ -86,3 +91,9 @@ class BackProp:
 		# saver object to save parameters to file
 		saver = tf.train.Saver([self.w1, self.w2, self.b1, self.b2])
 		saver.save(self.sess, checkpointFilename)
+
+	# restore network from a checkpoint
+	def restoreNetwork(self, checkpointFilename):
+		# saver object to restore parameters to file
+		saver = tf.train.Saver([self.w1, self.w2, self.b1, self.b2])
+		saver.restore(self.sess, checkpointFilename)
