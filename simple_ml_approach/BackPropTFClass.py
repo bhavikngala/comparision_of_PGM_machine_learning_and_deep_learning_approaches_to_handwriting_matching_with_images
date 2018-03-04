@@ -13,7 +13,7 @@ class BackProp:
 		self.w1 = tf.Variable(tf.truncated_normal([layerSizes[0],
 			layerSizes[1]]), name='w1')
 		# bias prototype, name attribute for saving bias
-		self.b2 = tf.Variable(tf.truncated_normal([1, layerSizes[1]]),
+		self.b1 = tf.Variable(tf.truncated_normal([1, layerSizes[1]]),
 			name='b1')
 
 		# weight prototype, name attribute for saving weight
@@ -45,7 +45,7 @@ class BackProp:
 		y = tf.placeholder(tf.float32, [None, self.layerSizes[2]])
 
 		# feed forward
-		yHat = feedForward(x)
+		yHat = self.feedForward(x)
 		# class of prediction
 		predict = tf.argmax(yHat, axis=1)
 
@@ -58,7 +58,7 @@ class BackProp:
 		# run epochs for training
 		for epoch in range(epochs):
 			# train in minibatches
-			for i in range(xTrain.shape[0]/miniBatchSize)
+			for i in range(int(xTrain.shape[0]/miniBatchSize)):
 				# sample indices in minibatch
 				lowerBound = i*miniBatchSize
 				upperBound = min((i+1)*miniBatchSize, xTrain.shape[0])
@@ -70,14 +70,15 @@ class BackProp:
 			if xVali is not None and yVali is not None:
 				if epoch % 100 == 0 or (epoch % 10 == 0 and epoch < 100):
 					# compute test accuracy
-					test_accuracy = np.mean(np.argmax(yVali, axis=1) == self.sess.run(predict, feed_dict={x:xVali, y:yVali}))
+					test_accuracy = np.mean(np.argmax(yVali, axis=1) == self.sess.run(predict, feed_dict={x:xVali}))
 
-					print('Epoch = %05d, test accuracy = %.2f%%' % (epoch+1, 100. * test_accuracy))
+					print('Epoch = %05d, test accuracy = %.2f%%' % (epoch,
+						100. * test_accuracy))
 
 	# predict class:
 	def predict(self, xInput):
 		x = tf.placeholder(tf.float32, [None, 768])
-		yHat = feedForward(x)
+		yHat = self.feedForward(x)
 		# prediction
 		predict = tf.argmax(yHat, axis=1)
 		
@@ -88,7 +89,7 @@ class BackProp:
 	# evaluate network
 	def evaluateNetwork(self, xInput, yInput):
 		x = tf.placeholder(tf.float32, [None, 768])
-		yHat = feedForward(x)
+		yHat = self.feedForward(x)
 		# prediction
 		predict = tf.argmax(yHat, axis=1)
 
@@ -106,4 +107,3 @@ class BackProp:
 	def restoreNetwork(self, checkpointFilename):
 		# saver object to restore parameters to file
 		saver = tf.train.Saver([self.w1, self.w2, self.b1, self.b2])
-		saver.restore(self.sess, checkpointFilename)
