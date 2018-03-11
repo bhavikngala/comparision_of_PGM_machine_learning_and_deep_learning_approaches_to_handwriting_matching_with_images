@@ -103,7 +103,7 @@ def clusterDescriptorsUsingKmeans(numCluster):
 	np.save(centroidsOfSIFTDescriptorsFile, descriptorDict)
 
 # generate inputs and output labels from the extracted SIFT descriptors
-def generateInputOutputDataset(descriptorsFile):
+def generateInputOutputDataset(descriptorsFile, numPairs):
 	print('\n~~~~~~~inside sift_feature_extractor:::function:::generateInputOutputDataset\n')
 	# lists to store inputs and outputs
 	inputs = []
@@ -124,8 +124,8 @@ def generateInputOutputDataset(descriptorsFile):
 		if numImages > 1:
 			# random sampling of images to make pairs
 			# max number of pairs = 5
-			l1 = random.sample(range(numImages), min(numImages, 5))
-			l2 = random.sample(range(numImages), min(numImages, 5))
+			l1 = random.sample(range(numImages), min(numImages, numPairs))
+			l2 = random.sample(range(numImages), min(numImages, numPairs))
 			random.shuffle(l2)
 
 			# forming pairs
@@ -136,18 +136,19 @@ def generateInputOutputDataset(descriptorsFile):
 					outputs.append([1,0])
 
 		# fetching 5 writers from the keysList
-		negativeSamples = [keysList[i1] for i1 in random.sample(range(len(keysList)), 5)]
+		negativeSamples = [keysList[i1] for i1 in random.sample(range(len(keysList)), numPairs)]
 		# iterating to form different writer pairs
 		for key in negativeSamples:
-			# getting descriptors list for different writer
-			descList = descriptorDict.get(key)
-			# randomly sampling an image for each writer
-			i1 = random.randint(0, len(descList)-1)
-			i2 = random.randint(0, len(v)-1)
-			# forming pairs
-			inputs.append(np.concatenate([v[i2].flatten(),
-				descList[i1].flatten()]))
-			outputs.append([0, 1])
+			if key != k:
+				# getting descriptors list for different writer
+				descList = descriptorDict.get(key)
+				# randomly sampling an image for each writer
+				i1 = random.randint(0, len(descList)-1)
+				i2 = random.randint(0, len(v)-1)
+				# forming pairs
+				inputs.append(np.concatenate([v[i2].flatten(),
+					descList[i1].flatten()]))
+				outputs.append([0, 1])
 
 	print('num Inputs:', len(inputs))
 	print('length of input:', inputs[0].shape)
@@ -167,7 +168,7 @@ def main():
 	# clusterDescriptorsUsingKmeans(3)
 
 	# test run for generating input, output for network
-	generateInputOutputDataset(centroidsOfSIFTDescriptorsFile)
+	generateInputOutputDataset(centroidsOfSIFTDescriptorsFile, 10)
 
 if __name__ == "__main__":
 	main()
