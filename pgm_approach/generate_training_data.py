@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+import random
 
 # filename with path of the features file
 filename = './../data/pgm/features_pgm.csv'
@@ -32,7 +33,7 @@ def readDataInDict():
 			features = []
 			# if authorname is  present in dict then read it into features
 			if authorName in dataDict:
-				features = dataDict[authorName]
+				features = dataDict.get(authorName)
 
 			# update features list and update dictionary
 			features.append(np.array(row[1:], dtype='int8'))
@@ -41,7 +42,7 @@ def readDataInDict():
 	return dataDict
 
 # form same writer, different writer features pairs
-def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs):
+def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs, matchH0H1Prior):
 	# read the features data into dictionary
 	dataDict = readDataInDict()
 
@@ -72,7 +73,7 @@ def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs):
 				if i1 != i2:
 					sameWriterInputPairs.append(np.concatenate(
 						[v[i1].flatten(), v[i2].flatten()]))
-					sameWriterOutputPairs.append([1,0])
+					sameWriterOutputPairs.append([1])
 
 		# fetching 5 writers from the keysList
 		negativeSamples = [keysList[i1] for i1 in random.sample(range(len(keysList)), numPairs)]
@@ -91,20 +92,40 @@ def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs):
 				diffWriterInputPairs.append(
 					np.concatenate([v[i2].flatten(),
 						featureList[i1].flatten()]))
-				diffWriterOutputPairs.append([0, 1])
+				diffWriterOutputPairs.append([0])
 
+	if matchH0H1Prior:
 		# take min of same and different pairs
 		p = min(len(sameWriterInputPairs), len(diffWriterInputPairs))
-		
+
 		# only use p number of pairs from same and diff pairs list
 		# this is done to keep the prior prob of H0 and H1 to be
 		# equal to half
-		inputs = np.concatenate((sameWriterInputPairs[:p], diffWriterInputPairs[:p]), axis=0)
-		outputs = np.concatenate((sameWriterOutputPairs[:p], diffWriterOutputPairs[:p]), axis=0)
+		trainingInputs = np.concatenate((sameWriterInputPairs[:(p-10)],
+			diffWriterInputPairs[:(p-10)]), axis=0)
+		trainingOutputs = np.concatenate((sameWriterOutputPairs[:(p-10)],
+			diffWriterOutputPairs[:(p-10)]), axis=0)
 
-		return inputs, outputs
+		testingInputs = np.concatenate((sameWriterInputPairs[(p-10):p], diffWriterInputPairs[(p-10):p]), axis=0)
+		testingOutputs = np.concatenate((sameWriterOutputPairs[(p-10):p],
+			diffWriterOutputPairs[(p-10):p]), axis=0)
+	else:
+		trainingInputs = np.concatenate((sameWriterInputPairs[:-10],
+			diffWriterInputPairs[:-10]), axis=0)
+		trainingOutputs = np.concatenate((sameWriterOutputPairs[:10],
+			diffWriterOutputPairs[:-10]), axis=0)
+
+		testingInputs = np.concatenate((sameWriterInputPairs[-10:], diffWriterInputPairs[-10:p]), axis=0)
+		testingOutputs = np.concatenate((sameWriterOutputPairs[(p-10):p],
+			diffWriterOutputPairs[-10:p]), axis=0)
+
+	return trainingInputs, trainingOutputs, testingInputs, testingOutputs
 
 def main():
+	inputs, outputs = formSameWriterDiffWriterInputOutputFeaturePairs(5)
+	print("total pairs:", inputs.shape[0])
+	print("same writer pairs:", np.sum(outputs[:] == [1]))
+	print("same writer paits:", np.sum(outputs[:] == [0]))
 
 if __name__ == "__main__":
 	main()
