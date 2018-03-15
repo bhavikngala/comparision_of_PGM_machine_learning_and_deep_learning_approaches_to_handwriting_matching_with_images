@@ -5,6 +5,9 @@ from pgmpy.estimators import BayesianEstimator, BicScore
 from pgmpy.estimators import HillClimbSearch
 import generate_training_data as gtd
 from pgmpy.inference import VariableElimination
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set()
 
 featuresLabelList = ['f1','f2','f3','f4','f5','f6','f7','f8','f9']
 featuresLabelList2 = ['f1','f2','f3','f4','f5','f6','f7','f8','f9',\
@@ -120,14 +123,16 @@ def correlationOfVariabledInPairs():
 		columns=['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10',\
 			'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19'])
 
-	testingData = pd.DataFrame(
-		data = np.concatenate((testingInputs, testingOutputs), axis=1),
-		columns=['f1','f2','f3','f4','f5','f6','f7','f8','f9','f10',\
-			'f11', 'f12', 'f13', 'f14', 'f15', 'f16', 'f17', 'f18', 'f19'])
+	correlationMatrix = trainingData.corr()
+	print(correlationMatrix)
+	
+	sns.heatmap(correlationMatrix, annot=True)
+	plt.show()
 
 def main():
 	# learnedStructureModel()
-	naiveModel()
+	# naiveModel()
+	correlationOfVariabledInPairs()
 
 if __name__ == '__main__':
 	main()
