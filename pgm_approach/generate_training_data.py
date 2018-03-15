@@ -106,18 +106,18 @@ def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs, matchH0H1Prior):
 		trainingOutputs = np.concatenate((sameWriterOutputPairs[:(p-10)],
 			diffWriterOutputPairs[:(p-10)]), axis=0)
 
-		testingInputs = np.concatenate((sameWriterInputPairs[(p-10):p], diffWriterInputPairs[(p-10):p]), axis=0)
-		testingOutputs = np.concatenate((sameWriterOutputPairs[(p-10):p],
-			diffWriterOutputPairs[(p-10):p]), axis=0)
+		testingInputs = np.concatenate((sameWriterInputPairs[(p-10):], diffWriterInputPairs[(p-10):]), axis=0)
+		testingOutputs = np.concatenate((sameWriterOutputPairs[(p-10):],
+			diffWriterOutputPairs[(p-10):]), axis=0)
 	else:
 		trainingInputs = np.concatenate((sameWriterInputPairs[:-10],
 			diffWriterInputPairs[:-10]), axis=0)
-		trainingOutputs = np.concatenate((sameWriterOutputPairs[:10],
+		trainingOutputs = np.concatenate((sameWriterOutputPairs[:-10],
 			diffWriterOutputPairs[:-10]), axis=0)
 
-		testingInputs = np.concatenate((sameWriterInputPairs[-10:], diffWriterInputPairs[-10:p]), axis=0)
-		testingOutputs = np.concatenate((sameWriterOutputPairs[(p-10):p],
-			diffWriterOutputPairs[-10:p]), axis=0)
+		testingInputs = np.concatenate((sameWriterInputPairs[-10:], diffWriterInputPairs[-10:]), axis=0)
+		testingOutputs = np.concatenate((sameWriterOutputPairs[-10:],
+			diffWriterOutputPairs[-10:]), axis=0)
 
 	return trainingInputs, trainingOutputs, testingInputs, testingOutputs
 
