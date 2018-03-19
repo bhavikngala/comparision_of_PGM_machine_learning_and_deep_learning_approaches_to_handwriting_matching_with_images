@@ -77,7 +77,7 @@ class BackProp:
 
 	# predict class:
 	def predict(self, xInput):
-		x = tf.placeholder(tf.float32, [None, 768])
+		x = tf.placeholder(tf.float32, [None, self.layerSizes[0]])
 		yHat = self.feedForward(x)
 		# prediction
 		predict = tf.argmax(yHat, axis=1)
@@ -87,15 +87,21 @@ class BackProp:
 		return predict
 
 	# evaluate network
-	def evaluateNetwork(self, xInput, yInput):
-		x = tf.placeholder(tf.float32, [None, 768])
+	def evaluateNetwork(self, xInput, yInput, printMsg=None):
+		x = tf.placeholder(tf.float32, [None, self.layerSizes[0]])
 		yHat = self.feedForward(x)
 		# prediction
 		predict = tf.argmax(yHat, axis=1)
 
 		# compute accuracy
 		accuracy = np.mean(np.argmax(yInput, axis=1) == self.sess.run(predict, feed_dict={x:xInput}))
-		print('Network accuracy = %.2f%%' % (100. * accuracy))
+
+		if printMsg is None:
+			printMsg = 'Network accuracy = %.2f%%'
+
+		print(printMsg % (100. * accuracy))
+
+		return predict, accuracy
 
 	# save network weights and bias
 	def saveNetwork(self, checkpointFilename):
