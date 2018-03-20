@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import sift_feature_extractor as sfe
+# import time, datetime
 
 class BackProp:
 
@@ -105,6 +106,8 @@ class BackProp:
 
 	# save network weights and bias
 	def saveNetwork(self, checkpointFilename):
+		# get time when the file is saved
+		# dateTimeStr = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
 		# saver object to save parameters to file
 		saver = tf.train.Saver([self.w1, self.w2, self.b1, self.b2])
 		saver.save(self.sess, checkpointFilename)
