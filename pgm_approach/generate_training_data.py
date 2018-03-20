@@ -94,6 +94,12 @@ def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs, matchH0H1Prior):
 						featureList[i1].flatten()]))
 				diffWriterOutputPairs.append([0])
 
+	# shuffle data
+	sameWriterInputPairs, sameWriterOutputPairs = \
+		shuffleLists(sameWriterInputPairs, sameWriterOutputPairs)
+	diffWriterInputPairs, diffWriterOutputPairs = \
+		shuffleLists(diffWriterInputPairs, diffWriterOutputPairs)
+
 	if matchH0H1Prior:
 		# take min of same and different pairs
 		p = min(len(sameWriterInputPairs), len(diffWriterInputPairs))
@@ -110,16 +116,27 @@ def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs, matchH0H1Prior):
 		testingOutputs = np.concatenate((sameWriterOutputPairs[(p-10):],
 			diffWriterOutputPairs[(p-10):]), axis=0)
 	else:
-		trainingInputs = np.concatenate((sameWriterInputPairs[:-10],
-			diffWriterInputPairs[:-10]), axis=0)
-		trainingOutputs = np.concatenate((sameWriterOutputPairs[:-10],
-			diffWriterOutputPairs[:-10]), axis=0)
+		l1 = len(sameWriterInputPairs)
+		l2 = len(diffWriterInputPairs)
+		trainingInputs = np.concatenate((sameWriterInputPairs[:int(0.8*l1)],
+			diffWriterInputPairs[:int(0.8*l2)]), axis=0)
+		trainingOutputs = np.concatenate((sameWriterOutputPairs[:int(0.8*l1)],
+			diffWriterOutputPairs[:int(0.8*l2)]), axis=0)
 
-		testingInputs = np.concatenate((sameWriterInputPairs[-10:], diffWriterInputPairs[-10:]), axis=0)
-		testingOutputs = np.concatenate((sameWriterOutputPairs[-10:],
-			diffWriterOutputPairs[-10:]), axis=0)
+		testingInputs = np.concatenate((sameWriterInputPairs[int(0.8*l1):], diffWriterInputPairs[int(0.8*l2):]), axis=0)
+		testingOutputs = np.concatenate((sameWriterOutputPairs[int(0.8*l1):],
+			diffWriterOutputPairs[int(0.8*l2):]), axis=0)
 
 	return trainingInputs, trainingOutputs, testingInputs, testingOutputs
+
+# shuffle data
+def shuffleLists(*lists):
+	# pack the lists using zip
+	packedLists = list(zip(*lists))
+	# shuffle the packed list
+	random.shuffle(packedLists)
+	# return the lists by unpacking them
+	return zip(*packedLists)
 
 def main():
 	inputs, outputs = formSameWriterDiffWriterInputOutputFeaturePairs(5)
