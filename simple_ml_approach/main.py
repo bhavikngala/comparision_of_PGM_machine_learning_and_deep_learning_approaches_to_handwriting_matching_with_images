@@ -1,64 +1,59 @@
+import argparse
 import numpy as np
-import random
 import sift_feature_extractor as sfe
-from backprop import BackPropNN
+from BackPropTFClass import BackProp
 
-# filename of vector added SIFT descriptors
-vectorAddedSIFTDescriptorsFile = './../data/vectorAddedSIFTDescriptorsDictionary.npy'
-# filename of clusters of SIFT descriptors
-clustersOfSIFTDescriptorsFile = './../data/centroidsOfSIFTDescriptorsDictionary_3.npy'
+import sys
+sys.path.insert(0, './../helpers')
+import file_helper as postman
 
-learningRate = 0.5
-epochs = 5000
-miniBatchSize = 500
+def main(args):
+	# read the pair names in the list
+	pairNamesList = postman.readPairNamesInList(
+		args['filepath'] + '/MLTestPairs.csv')
 
-# function trains the network with given input-output and network size
-# input is specified in the siftDescriptorFile which is the file name
-def fitNetWorkWithSIFTDescriptorRepresentation(siftDescriptorFile, numPairs, networkSize):
-	print('~~~~~~~inside main:::function:::fitNetWorkWithSIFTDescriptorRepresentation')
+	# extract sift features, cluster them, store in dictionary
+	siftFeatureClusterDict = sfe.readImagesExtractAndClusterSift(
+		args['filepath'] + '/MLTestData/')
 
-	# form same writer different writer pairs for input to network
-	inputs, outputs = sfe.generateInputOutputDataset(siftDescriptorFile, numPairs)
+	# network parameters
+	networkSize = [768, 256, 2]
+	# model checkpoint filename to restore parameters
+	weightFileName = './tmp/model.ckpt'
 
-	# shuffle randomly
-	inputs, outputs = shuffleLists(inputs, outputs)
-
-	# converting to np.array
-	inputs = np.array(inputs)
-	outputs = np.array(outputs)
-
-	# total number of inputs
-	numInputs = len(inputs)
-	
 	# initialize network
-	feedForwardNN = BackPropNN(networkSize)
+	# provide model checkpoint name in constructor to restore weights, baises
+	feedForwardNN = BackProp(networkSize, weightFileName)
 
-	# describe network
-	feedForwardNN.describeNetwork()
+	# 2D list for saving output in csv
+	output = []
+	output.append(['', 'FirtImage', 'SecondImage', 'SameOrDifferent'])
 
-	# train network with validation data
-	feedForwardNN.train(inputs[0:int(numInputs * 0.8)],
-		outputs[0:int(numInputs * 0.8)], learningRate, epochs, miniBatchSize,
-		inputs[int(numInputs * 0.8):int(numInputs * 0.9)],
-		outputs[int(numInputs * 0.8):int(numInputs * 0.9)])
+	for i in range(len(pairNamesList)):
+		# getting features for writer one
+		writer1Features = siftFeatureClusterDict.get(pairNamesList[i][0])
+		writer2Features = siftFeatureClusterDict.get(pairNamesList[i][1])
 
-# shuffle input lists
-def shuffleLists(*lists):
-	# pack the lists using zip
-	packedLists = list(zip(*lists))
-	# shuffle the packed list
-	random.shuffle(packedLists)
-	# return the lists by unpacking them
-	return zip(*packedLists)
+		xInput = np.reshape(
+			np.concatenate([writer1Features, writer2Features]),
+			[1,768])
 
-def main():
-	print('~~~~~~~inside main:::function:::main')
+		prediction = feedForwardNN.predict(xInput)
 
-	# train network using vector added SIFT descriptors
-	# fitNetWorkWithSIFTDescriptorRepresentation(vectorAddedSIFTDescriptorsFile, 10, [256, 128, 2])
+		# prediction is subtracted from 1 because during training the network
+		# same writer class was assigned [1, 0] i.e. 0 value
+		# and [0, 1] i.e 1 was assigned for different class
+		# which is opposite to the output required for the test data
+		output.append([str(i), pairNamesList[i][0], pairNamesList[i][1], 
+			str(1 - prediction[0])])
 
-	# train network using clusters of SIFT descriptors
-	fitNetWorkWithSIFTDescriptorRepresentation(clustersOfSIFTDescriptorsFile, 10, [768, 256, 2])
+	# save the output list to csv file
+	postman.saveToCSVFile(args['filepath'] + '/MLTestOutput.csv', output)
 
-if __name__ == "__main__":
-	main()
+if __name__ == '__main__':
+	ap = argparse.ArgumentParser()
+	ap.add_argument("-f", "--filepath", required=True,
+		help="path of the test data folder")
+	args = vars(ap.parse_args())
+
+	main(args)
