@@ -92,7 +92,7 @@ def clusterDescriptorsUsingKmeans(numCluster):
 			# normalizing the centroids
 			centroidMag = np.reshape(np.linalg.norm(centroids, axis=1, ord=2),
 				[-1, 1])
-			centroids = centroids/centroidMag
+			# centroids = centroids/centroidMag
 
 			# appending the resultant vector to list
 			centroidsOfSIFTDescriptors.append(centroids)
@@ -101,6 +101,37 @@ def clusterDescriptorsUsingKmeans(numCluster):
 
 	# save dictionary to file
 	np.save(centroidsOfSIFTDescriptorsFile, descriptorDict)
+
+# function reads images, extracts SIFT features, clusters them
+# returns a dictionary
+def readImagesExtractAndClusterSift(filepath):
+	# dictionary to store descriptors with filenames
+	siftFeatureClusterDict = {}
+
+	# list of all filenames in the directory
+	imgFilenames = os.listdir(filepath + '/')
+
+	# SIFT feature extractor
+	sift = cv2.xfeatures2d.SIFT_create()
+
+	# looping over all the images in the directory
+	# extracting SIFT features
+	# storing the feature in the dictionary
+	for imgFileName in imgFilenames:
+		# reading image as grayscale image
+
+		if imgFileName[-4:] == '.png':
+			img = cv2.imread(filepath + '/' + imgFileName, 0)
+
+			# extracting keypoints and descriptors of image
+			_, desc = sift.detectAndCompute(img, None)
+
+			# cluster the descriptors
+			centroids, _ = kmeans2(desc, 3, minit='points')
+
+			siftFeatureClusterDict.update({imgFileName.split('.')[0]:centroids.flatten()})
+
+	return siftFeatureClusterDict
 
 # generate inputs and output labels from the extracted SIFT descriptors
 def generateInputOutputDataset(descriptorsFile, numPairs):
