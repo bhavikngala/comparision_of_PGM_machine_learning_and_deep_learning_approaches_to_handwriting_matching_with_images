@@ -8,9 +8,12 @@ filename = './../data/pgm/features_pgm.csv'
 # read the features in dictionary
 # authorname is the key
 # list of features is the value
-def readDataInDict():
+def readDataInDict(filename=None):
 	# initialize empty dictioanary
 	dataDict = {}
+
+	if filename is None:
+		filename = './../data/pgm/features_pgm.csv'
 
 	# open csv file, read into list of rows
 	with open(filename, 'r') as csvfile:
@@ -42,9 +45,10 @@ def readDataInDict():
 	return dataDict
 
 # form same writer, different writer features pairs
-def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs, matchH0H1Prior):
+def formSameWriterDiffWriterInputOutputFeaturePairs(numPairs, matchH0H1Prior,
+	filename=None):
 	# read the features data into dictionary
-	dataDict = readDataInDict()
+	dataDict = readDataInDict(filename)
 
 	# initialisze empty lists for same writer pairs and different writer pairs separately
 	sameWriterInputPairs = []
