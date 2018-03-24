@@ -92,8 +92,10 @@ def generateDiffAndRarityData():
 
 	# computing new variable difference variables
 	h0Diff, h0Rarity = computeDifferenceAndRarityVariables(h0Data, stateValuesK)
+	h1Diff, h1Rarity = computeDifferenceAndRarityVariables(h1Data,
+		stateValuesK)
 
-	return h0Diff, h0Rarity
+	return h0Diff, h0Rarity, h1Diff, h1Rarity
 
 def generateDiffAndRarityModel(h0Diff, h0Rarity):
 	# correlation matrix
@@ -175,21 +177,28 @@ def scoreModels(h0Diff, h0Rarity):
 		K2Score(h0Rarity).score(BayesianModel(rarityModel2)),
 		BicScore(h0Rarity).score(BayesianModel(rarityModel2))))
 
+def evaluateNetwrok(model, inputData, hypothesis):
+	predictedHypothesis = []
 
+	for i in range(len(evaluationData.index)):
 
 def main():
 	# h0 difference and h0 rarity data
-	h0Diff, h0Rarity = generateDiffAndRarityData()	
+	h0Diff, h0Rarity, h1Diff, h1Rarity = generateDiffAndRarityData()	
 
 	# converting to pandas data frame
 	h0Diff = pd.DataFrame(h0Diff, columns = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9'])
 	h0Rarity = pd.DataFrame(h0Rarity, columns = ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'])
+	h1Diff = pd.DataFrame(h1Diff, columns = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9'])
+	h1Rarity = pd.DataFrame(h1Rarity, columns = ['r1', 'r2', 'r3', 'r4', 'r5', 'r6', 'r7', 'r8', 'r9'])
 
 	# h0 difference model and h0 rarity model
 	# h0DiffModel, h0RarityModel = generateDiffAndRarityModel(h0Diff, h0Rarity)
 
 	# compute scores for differemt models
-	scoreModels(h0Diff, h0Rarity)
+	# scoreModels(h0Diff, h0Rarity)
+
+
 
 if __name__ == '__main__':
 	sns.set()
