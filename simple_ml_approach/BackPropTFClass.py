@@ -31,7 +31,7 @@ class BackProp:
 		# if model checkpoint filename is provided then  restore
 		# parameters from file
 		if modelCheckPointFileName is not None:
-			restoreNetwork(modelCheckPointFileName)
+			self.restoreNetwork(modelCheckPointFileName)
 
 	# feed forward the input and compute output
 	def feedForward(self, x):
@@ -84,8 +84,8 @@ class BackProp:
 		predict = tf.argmax(yHat, axis=1)
 		
 		# run prediction
-		self.sess.run(predict, feed_dict={x:xInput})
-		return predict
+		prediction = self.sess.run(predict, feed_dict={x:xInput})
+		return prediction
 
 	# evaluate network
 	def evaluateNetwork(self, xInput, yInput, printMsg=None):
