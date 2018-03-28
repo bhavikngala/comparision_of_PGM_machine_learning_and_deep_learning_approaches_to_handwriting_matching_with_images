@@ -116,3 +116,4 @@ class BackProp:
 	def restoreNetwork(self, checkpointFilename):
 		# saver object to restore parameters to file
 		saver = tf.train.Saver([self.w1, self.w2, self.b1, self.b2])
+		saver.restore(self.sess, checkpointFilename)
